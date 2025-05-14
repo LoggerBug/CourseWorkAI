@@ -18,7 +18,6 @@ import numpy as np
 import torch
 import os
 
-# Инициализация логирования
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO,
@@ -39,11 +38,9 @@ user_context: Dict[int, Dict[str, Optional[str]]] = {}
 user_cart: Dict[int, List[int]] = {}
 user_menu_context: Dict[int, str] = {}
 
-# Принудительное использование CPU
 device = torch.device("cpu")
 logger.info(f"Using device: {device}")
 
-# Загрузка репетиторов
 def load_tutors(filename: str) -> List[Dict]:
     try:
         with open(filename, 'r', encoding='utf-8') as file:
@@ -81,7 +78,6 @@ def preprocess_text(text: str) -> str:
     lemmatized = [morph.parse(word)[0].normal_form for word in words]
     return ' '.join(lemmatized)
 
-# Подготовка данных для классификации
 embedder = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2', device=device)
 X = list(dialogues.keys())
 X_embeddings = embedder.encode(X, convert_to_tensor=True, device=device)
@@ -113,7 +109,9 @@ try:
         initial_prompt = f.read()
 except FileNotFoundError:
     logger.error("Файл base.txt не найден")
-    initial_prompt = "Ты бот, помогающий выбрать репетиторов. Отвечай кратко, профессионально, учитывая предыдущие сообщения в диалоге. После уточнения предмета и уровня показывай подходящих репетиторов автоматически. Предлагай добавить их в корзину через кнопки. Для работы с корзиной предлагай кнопку 'Работа с корзиной' в меню. Используй ссылки в формате [название](ссылка). Не используй эмодзи и избегай лишних деталей."
+    initial_prompt = "Ты бот, помогающий выбрать репетиторов. Отвечай кратко, профессионально, учитывая предыдущие сообщения в диалоге. " \
+    "После уточнения предмета и уровня показывай подходящих репетиторов автоматически. Предлагай добавить их в корзину через кнопки. " \
+    "Для работы с корзиной предлагай кнопку 'Работа с корзиной' в меню. Используй ссылки в формате [название](ссылка). Не используй эмодзи и избегай лишних деталей."
 
 # Функция фильтрации репетиторов
 def filter_tutors(subject: Optional[str] = None, level: Optional[str] = None, format: Optional[str] = None) -> List[Dict]:
@@ -337,7 +335,6 @@ def initialize_user(user_id: int) -> None:
     user_cart[user_id] = []
     user_menu_context[user_id] = "main"
 
-# Обновление контекста
 def update_context(user_id: int, subject: Optional[str], level: Optional[str]) -> None:
     if user_id not in user_context:
         user_context[user_id] = {"subject": None, "level": None, "selection_step": None, "selected_subject": None}
@@ -347,7 +344,6 @@ def update_context(user_id: int, subject: Optional[str], level: Optional[str]) -
         user_context[user_id]["level"] = level
     logger.info(f"Updated context for user {user_id}: {user_context[user_id]}")
 
-# Проверка связи с контекстом
 def is_related_to_previous_context(user_message: str, user_id: int) -> Tuple[bool, Optional[str], Optional[str]]:
     user_message_lower = user_message.lower()
     subjects = ['физика', 'математика', 'химия', 'биология', 'география', 'история', 'английский', 'русский', 'литература', 'программирование', 'музыка', 'шахматы', 'французский', 'немецкий']
@@ -613,7 +609,7 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
 
 # Функция для запуска бота
 def main() -> None:
-    TOKEN = '7809241077:AAEcHFs_INk1EJK0AD__sRR6wjGn3wJfqfg'
+    TOKEN = ''
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler('start', start))
     app.add_handler(CommandHandler('new_bot', start_new_dialog))
